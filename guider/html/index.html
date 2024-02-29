@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1280, height=800, user-scalable=no" />
+
+    <link href="css/style.css" rel="stylesheet">
+    <script src="/libs/qimessaging/2/qimessaging.js"></script>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script src="js/projects.js"></script>
+    <script>var projects = projects_info;</script>
+    <script src="js/Lab_Info.js"></script>
+    <script>var labs_info = description; </script>
+    <script src="js/main.js"></script>
+</head>
+<body class="background_home">
+    <div id="header">
+        <div class="dropdown_setting">
+            <button id="button_setting"></button>
+            <div class="dropdown_setting_content">
+                <button id="button_volume_up" class="button_volume"></button>
+                <button id="button_volume_down" class="button_volume"></button> 
+                <button id="button_volume_mute" class="button_volume"></button> 
+            </div>
+        </div>
+        <div class="dropdown_menu">
+            <button id="button_menu"></button>
+            <div class="dropdown_menu_content">
+                <button id="mode1" class="button_mode">Auto Detect</button>
+                <button id="mode2" class="button_mode">User Trigger</button>
+            </div>
+        </div>
+        
+        <div id="header_logo">Welcome to UTS Robotics Institute</div>
+    </div>
+    <div id="content">
+        <div id="lab_selectors">
+            <button id="RI" class="button_main">Robotics Institute</button>
+            <button id="HRI" class="button_main">Human-Robot Interaction Lab</button>
+            <button id="IR" class="button_main">Intelligent Robotics Lab</button>
+            <button id="IF" class="button_main">Infrastructure Lab</button>
+            <button id="FEEDBACK" class="button_main">Feedback</button>
+        </div>
+        <div id="detail_page_content">
+            <div class="info_container"></div>
+            <div class="projects"></div>
+        </div>
+        
+    </div>
+    <div id="footer">
+        <button class="button_exit">exit-></button>
+        <button class="button_home" style="display: none;"></button>
+    </div>
+
+    
+</body>
+</html>
