@@ -1,18 +1,19 @@
+var voice = new Audio('change_screen.ogg');
 var session = new QiSession(function(session){
     console.log("connected!");
     }, function(){
         console.log("disconnected!");
 });
-/* INITIALIZATION */    
-var mode = 1; //when true, Auto detective otherwise user trigger
+// *** INITIALIZATION *** //    
+var mode = 1;                       //when true, Auto detective otherwise user trigger
 
-var voice = new Audio('change_screen.ogg');
-var current_volume = 30;
-var mute_state = false;
-var guider_start = false;
+var current_volume = 30;            //
+var mute_state = false;             //
+var guider_start = false;           // to make sure this loop runs once for initialization
 var robotname;
 $(document).ready(  function(){
     if(!guider_start){
+        /* volume */ 
         session.service("ALAudioDevice").then(function(audio){
             audio.getOutputVolume().then(function(vol){
                 current_volume = vol;
@@ -22,80 +23,80 @@ $(document).ready(  function(){
             }, function(error){mute_state = 0;});
             audio.setOutputVolume(current_volume);
         });
+        /* vocie and speed */ 
         session.service("ALTextToSpeech").then(function(tts){
             tts.setParameter("speed", 90);
             tts.setParameter("pitchShift", 1.1);
         });
+        /* animated mode */ 
         session.service("ALAnimatedSpeech").then(function(tts){
             tts.setBodyLanguageMode(2);
         });
 
-
-        //TODO : check if the returned value is string or objects
-        session.service("ALSyetem").then( function(system){
-            robotname = system.robotName();
+        session.service("ALSystem").then( function(system){
+            system.robotName().then( function(name){
+                robotname = name;
+            }, function(error){robotname="pepper";});
         });
         guider_start = true;
     }
 });
 
-var current_page = 'HOME';
+
+// *** SUBSCRIBE EVENTS *** //
+ session.service("ALMemory").then(function(memory){
+    /* speech status */
+    memory.subscriber("ALTextToSpeech/TextDone").then(function(subscriber){
+        subscriber.signal.connect(eventCallback_text_done);
+    });
+    memory.subscriber("ALTextToSpeech/TextInterrupted").then(function(subscriber){
+        subscriber.signal.connect(eventCallback_text_interrupted);
+    });
+    memory.subscriber("ALTextToSpeech/Status").then(function(subscriber){
+        subscriber.signal.connect(eventCallback_speaking_status);
+    });
+       /* Human Tracking */
+    memory.subscriber("ALBasicAwareness/HumanTracked").then(function(subscriber){
+        subscriber.signal.connect(eventDonecallback_human_tracked);
+    });
+});
+
+// *** EVENTCALLBACK FUNCTIONS *** //
+function eventCallback_text_done(state){
+    if(state){
+    }
+}
+
+function eventCallback_text_interrupted(state){
+    if (state){
+    }
+}
+
+var speaking_status; 
+function eventCallback_speaking_status(state){
+    speaking_status = state[1];
+}
+
+function eventDonecallback_human_tracked(state){
+    if(state == -1){
+        stopSpeak();
+    }
+    else{
+        if(speaking_status != 'started'){
+            speak_start(current_page, 'intro');
+        }
+    }
+}
+
+var current_page = 'HOME';                          
 var pages = {'HOME' :'UTS Labs', 
             'RI' :'UTS Robotics Institute', 
             'HRI': 'Human-Robot Interaction Lab',
             'IR' : 'Intelligent Robotics Lab',
             'IF' : 'Infrastructure Lab',
-            'FEEDBACK': 'Please give me your thoughts !'};
+            'FEEDBACK': 'Please give me your thoughts !'};          // { pageId : headline }
 
-function add_projects_to_page(pageID){
-    for(var i=0; i<projects[pageID].length; i++){
-
-        var projectName = projects[pageID][i]['name'];
-        var projectLink = projects[pageID][i]['link'];
-        var projectUrl = projects[pageID][i]['url'];
-        if(typeof(projectUrl) == 'undefined'){projectUrl = 'no url' ;}
-        console.log(projectName + ' : ' + projectLink + ' : ' + projectUrl);
-        if(i>2){
-            $(".projects").append(
-                '<button id="' + projectName + '" class="project_items line2">'+
-                    '<div>' + projectName+'</div>'+
-                '</button>'
-            ); 
-        }
-        else{
-            $(".projects").append(
-                '<button id="' + projectName + '" class="project_items">'+
-                    '<div>' + projectName+'</div>'+
-                '</button>'
-            ); 
-        }
-    }
-}
-
-function add_property_to_page(pageID){
-    if(pageID == 'HOME'){
-        $(".projects").empty();
-        $(".info_container").empty();
-    }
-    else if(pageID == 'FEEDBACK'){
-        $(".info_container").append(
-            '<div id="qr" type="img" style="background-image:url(images/QR_' + pageID + '.png)" ></div>'
-        );
-    }
-    else{
-        add_projects_to_page(pageID);
-        $(".info_container").append(
-        '<div id="qr" type="img" style="background-image:url(images/QR_' + pageID + '.png)" ></div>' + 
-        '<button id="info_'+ pageID +'" class="button_info"> More Information >> </button>'
-    );
-    }
-    $(".button_info").click( function(){
-        console.log("Saying more information ");
-        var pageID = $(this).attr('id').substring(5);
-        stopSpeak();
-        speak_start(pageID, 'moreinfo');
-    });
-}
+// *** PAGE CONFIGURATION *** //
 function changeToHomePage(pageID){
     console.log("Display home page ");
     $('body').removeClass();
@@ -131,6 +132,58 @@ function changeToFeedback(pageID){
     $(".button_home").show();
     $("#detail_page_content").show();
 }
+
+/* adding projects list on each lab page */ 
+function add_projects_to_page(pageID){
+    proj_info = [];
+    for(var i=0; i<projects[pageID].length; i++){
+
+        var name = projects[pageID][i]['name'];
+        var projectUrl = projects[pageID][i]['imgUrl'];
+        if(typeof(projectUrl) == 'undefined' || projectUrl == ''){projectUrl = 'url(images/banner.svg)' ;}
+        if(i>2){
+            $(".projects").append(
+                '<div id="' + name + '" class="project_items line2" style="background-image: '+projectUrl+'">'+
+                    '<div>' + name+'</div>'+
+                '</div>'
+            ); 
+        }
+        else{
+            $(".projects").append(
+                '<div id="' + name + '" class="project_items"  style="background-image: '+projectUrl+'">'+
+                    '<div>' + name+'</div>'+
+                '</div>'
+            ); 
+        }
+    }
+}
+
+/*  adding QR code and button for more informaiton on each lab page */
+function add_property_to_page(pageID){
+    if(pageID == 'HOME'){
+        $(".projects").empty();
+        $(".info_container").empty();
+    }
+    else if(pageID == 'FEEDBACK'){
+        $(".info_container").append(
+            '<div id="qr" type="img" style="background-image:url(images/QR_' + pageID + '.png)" ></div>'
+        );
+    }
+    else{
+        add_projects_to_page(pageID);
+        $(".info_container").append(
+        '<div id="qr" type="img" style="background-image:url(images/QR_' + pageID + '.png)" ></div>' + 
+        '<button id="info_'+ pageID +'" class="button_info"> More Information >> </button>'
+    );
+    }
+    $(".button_info").click( function(){
+        console.log("Saying more information ");
+        var pageID = $(this).attr('id').substring(5);
+        stopSpeak();
+        speak_start(pageID, 'moreinfo');
+    });
+}
+
 function changePage(pageID){
     current_page = pageID;
     add_property_to_page(pageID);
@@ -138,11 +191,7 @@ function changePage(pageID){
     else if (pageID == 'FEEDBACK'){ changeToFeedback('FEEDBACK');}
     else{changeToLabPage(pageID); }
 }
-function logging(info){
-    session.service("ALLogger").then(function(logger){
-        logger.info("==================================", info);
-    });
-}
+
 function adjust_volume(diff){
     session.service("ALAudioDevice").then(function(audio){
         current_volume += diff;
@@ -155,6 +204,7 @@ function adjust_volume(diff){
         audio.setOutputVolume(current_volume);
     });
 }
+
 function mute_volume(){
     session.service("ALAudioDevice").then(function(audio){
         if(mute_state){
@@ -168,11 +218,14 @@ function mute_volume(){
         }
     });
 }
+
+/* exit the webpage by stopping behaviour to launch webview */ 
 function exit(){
     session.service("ALBehaviorManager").then(function(behaviour){
         behaviour.stopAllBehaviors();
     });
 }
+
 function hide_dropdown(name){
     if (typeof(name) == 'undefined'){
         $(".dropdown_menu_content").hide();
@@ -204,71 +257,12 @@ function standInit(){
         posture.goToPosture('Standzero',1.0);
     });
 }
-var textPending = [];
+
 function speak_start(pageId, tagId){
-    // var i = 0;
-    // while(true){
-    //     var text = labs_info[pageId][tagId + i];
-    //     if(typeof(text) == "undefined"){
-    //         break;
-    //     }
-    //     else{
-    //         textPending.push(text);
-    //     }
-    //     i++;
-    // }
     var text = labs_info[pageId][tagId];
-    
-    speak(text);//textPending.shift();
-
+    text = text.replace('ROBOTNAME', robotname);
+    speak(text);
 }
-
-function eventCallback_text_done(state){
-    if(state){
-        if(textPending.length > 0){
-            speak(textPending[0]);
-            textPending.shift();
-        }
-    }
-}
-function eventCallback_text_interrupted(state){
-    if (state){
-        textPending.length = 0;
-    }
-}
-
-var speaking_status;
-function eventCallback_speaking_status(state){
-    speaking_status = state[1];
-}
-
-function eventDonecallback_human_tracked(state){
-    if(state == -1){
-        stopSpeak();
-    }
-    else{
-        if(speaking_status != 'started'){
-            speak_start(current_page, 'intro');
-        }
-    }
-}
-
-/* Subscribe Events */
-session.service("ALMemory").then(function(memory){
-    //speech events
-    memory.subscriber("ALTextToSpeech/TextDone").then(function(subscriber){
-        subscriber.signal.connect(eventCallback_text_done);
-    });
-    memory.subscriber("ALTextToSpeech/TextInterrupted").then(function(subscriber){
-        subscriber.signal.connect(eventCallback_text_interrupted);
-    });
-    memory.subscriber("ALTextToSpeech/Status").then(function(subscriber){
-        subscriber.signal.connect(eventCallback_speaking_status);
-    });
-    memory.subscriber("ALBasicAwareness/HumanTracked").then(function(subscriber){
-        subscriber.signal.connect(eventDonecallback_human_tracked);
-    });
-});
 
 $(document).ready(  function(){
     $('button').click(function(){
@@ -288,7 +282,7 @@ $(document).ready(  function(){
         changePage('HOME');
         $(".dropdown_setting_content .dropdown_menu_content").hide();
         stopSpeak();
-        hide_dropdown();
+        hide_dropdown('');
         standInit();
     });
 
@@ -307,7 +301,6 @@ $(document).ready(  function(){
         console.log(" clicked setting button " );
         hide_dropdown('setting');
     });
-
 
     $("#button_volume_up").click(function(){
         adjust_volume(5)});

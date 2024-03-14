@@ -19,7 +19,7 @@ var description = {
 
     },
     'HRI':  {
-            "intro" : "Welcome to our lab,  in this lab we focus on the interaction between humans and robots."+
+            "intro" : "Welcome to our lab, I am ROBOTNAME! in this lab we focus on the interaction between humans and robots."+
                         "Here, we study how various robotic systems can work together with people. Even my identity was defined in this lab! "+
                         "Come and explore innovative designs and discover how we are shaping the future of how robots interact with people."+
                         "If you are curious about the ongoing projects in this lab, scan QR code on my chest, or click button for more information!",
@@ -30,7 +30,7 @@ var description = {
                         "We are focused on enhancing user experiences and addressing challenges to create a smoother partnership between humans and robots. "
     },
     'IR' :  {
-            "intro" : "Welcome to our Intelligent Robotics Lab, a highly advanced facility dedicated to the advancement of robotic technologies. " +
+            "intro" : "Welcome to our Intelligent Robotics Lab, I am ROBOTNAME! a highly advanced facility dedicated to the advancement of robotic technologies. " +
                         "Feel free to explore our lab, and discover the transformative potential of robotics in shaping the future." + 
                         "If you are curious about the ongoing projects in this lab, scan QR code on my chest ! If you want to learn more about this lab,  press More Information button. ",
             "moreinfo" : "Do you wanna hear more information? sure!" + 
@@ -38,7 +38,7 @@ var description = {
                         "Our team of researchers collaborate on a wide range of projects including construction robotics, surgical robots, agriculture, manufacturing, and more."
     },
     'IF' : {
-            "intro" : "Welcome to our infrastructure robotics lab! Here, our primary focus is on enabling robots to perform the inspection and maintenance of critical infrastructure including bridges and pipes. "+
+            "intro" : "Welcome to our infrastructure robotics lab! I am ROBOTNAME! Here, our primary focus is on enabling robots to perform the inspection and maintenance of critical infrastructure including bridges and pipes. "+
                         "Through a combination of advanced robotics, sensor networks, and data analytics, we strive to enhance the efficiency and reliability of infrastructure inspection processes. "+
                         "Take a look at the various projects and experiments underway and explore how advanced technologies are seamlessly integrated into maintenance of these infrastructure." +
                         "If you are curious about the ongoing projects in this lab,  scan this QR code. If you want to hear more information,  press More Information button. ",

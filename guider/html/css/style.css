@@ -229,7 +229,7 @@ button:hover{
     background-color: transparent;
     background-size: contain;
     background-repeat: no-repeat; 
-    background-image: url(../images/banner.svg);
+    /* background-image: url(../images/banner.svg); */
     background-position: cover;
     width:150px;
     height:150px;  
